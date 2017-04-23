@@ -1,0 +1,19 @@
+{
+  "name": "flexee",
+  "version": "1.0.0",
+  "description": "Flexible event emitter for Node.js supporting RegExp-based event subscription",
+  "main": "index.js",
+  "author": "Dirk Lüth <info@qoopido.com>",
+  "license": "MIT",
+  "scripts": {
+    "test": "./node_modules/mocha/bin/_mocha --opts ./test/mocha.opts",
+    "coverage": "nyc --reporter=clover --reporter=text npm run test"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "mocha": "^3.2.0",
+    "nyc": "^10.2.0",
+    "sinon": "^2.1.0"
+  }
+}
