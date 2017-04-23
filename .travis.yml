@@ -1,0 +1,23 @@
+language: node_js
+
+node_js:
+  - "6"
+
+branches:
+  only:
+    - master
+    - develop
+
+cache:
+  yarn: true
+
+before_install:
+
+install:
+  - yarn install
+
+script:
+  - npm run test
+
+after_success:
+  - npm run coverage
