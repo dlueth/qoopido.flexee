@@ -3,8 +3,29 @@
   "version": "1.0.0",
   "description": "Flexible event emitter for Node.js supporting RegExp-based event subscription",
   "main": "index.js",
-  "author": "Dirk Lüth <info@qoopido.com>",
+  "author": {
+    "name": "Dirk Lueth",
+    "email": "info@qoopido.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/dlueth/qoopido.flexee.git"
+  },
   "license": "MIT",
+  "keywords": [
+    "event emitter",
+    "eventemitter",
+    "event",
+    "events",
+    "emitter",
+    "emits",
+    "emit",
+    "pub/sub",
+    "pubsub",
+    "publish",
+    "subscribe",
+    "unsubscribe"
+  ],
   "scripts": {
     "test": "nyc mocha",
     "coverage": "nyc report --reporter=text-lcov | coveralls"

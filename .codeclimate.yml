@@ -1,0 +1,27 @@
+---
+engines:
+  csslint:
+    enabled: false
+  duplication:
+    enabled: true
+    config:
+      languages:
+        javascript:
+          mass_threshold: 110
+  eslint:
+    enabled: true
+  fixme:
+    enabled: true
+  phpmd:
+    enabled: false
+ratings:
+  paths:
+  - "index.js"
+exclude_paths:
+- "test/"
+- ".gitignore"
+- ".travis.yml"
+- "LICENSE"
+- "package.json"
+- "README.md"
+- "yarn.lock"
