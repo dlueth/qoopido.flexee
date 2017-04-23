@@ -1,5 +1,5 @@
 {
-  "name": "Flexee",
+  "name": "flexee",
   "version": "1.0.0",
   "description": "Flexible event emitter for Node.js supporting RegExp-based event subscription",
   "main": "index.js",
