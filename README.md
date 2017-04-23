@@ -7,4 +7,4 @@
 [![NPM downloads](https://img.shields.io/npm/dt/flexee.svg?style=flat-square&label=npm%20downloads)](https://www.npmjs.org/package/qoopido.flexee)
 [![License](https://img.shields.io/npm/l/flexee.svg?style=flat-square)](https://github.com/dlueth/qoopido.flexee)
 
-Flexible & ded simple event emitter for Node.js supporting RegExp-based event subscription.
+Flexible & dead simple event emitter for Node.js supporting RegExp-based event subscription.
