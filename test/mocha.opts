@@ -1,7 +1,0 @@
---colors
---reporter spec
---timeout 2000
---check-leaks
---recursive
---sort
---globals @@any-promise/REGISTRATION
