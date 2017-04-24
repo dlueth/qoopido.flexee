@@ -155,7 +155,7 @@ describe('class/emitter.js', () => {
 			sinon.assert.callCount(spy, 1);
 			sinon.assert.calledWithExactly(spy, event);
 
-			expect(emitter.getListener(event)).to.be.an('array').and.to.have.length.of(0);
+			expect(emitter.listener(event)).to.be.an('array').and.to.have.length.of(0);
 		});
 
 		it('should unregister all event listeners when callback-function is omitted', () => {
@@ -171,7 +171,7 @@ describe('class/emitter.js', () => {
 			sinon.assert.callCount(spy, 2);
 			sinon.assert.alwaysCalledWithExactly(spy, event);
 
-			expect(emitter.getListener(event)).to.be.an('array').and.to.have.length.of(0);
+			expect(emitter.listener(event)).to.be.an('array').and.to.have.length.of(0);
 		});
 
 		it('should unregister an expression listener', () => {
@@ -190,7 +190,7 @@ describe('class/emitter.js', () => {
 			sinon.assert.callCount(spy, 2);
 			sinon.assert.alwaysCalledWithMatch(spy, regex);
 
-			expect(emitter.getListener(event)).to.be.an('array').and.to.have.length.of(0);
+			expect(emitter.listener(event)).to.be.an('array').and.to.have.length.of(0);
 		});
 
 		it('should unregister all expression listeners when callback-function is omitted', () => {
@@ -208,7 +208,7 @@ describe('class/emitter.js', () => {
 			sinon.assert.callCount(spy, 2);
 			sinon.assert.alwaysCalledWithMatch(spy, regex);
 
-			expect(emitter.getListener(event)).to.be.an('array').and.to.have.length.of(0);
+			expect(emitter.listener(event)).to.be.an('array').and.to.have.length.of(0);
 		});
 
 		it('should not unregister expression listeners when removing an event listener', () => {
@@ -226,7 +226,7 @@ describe('class/emitter.js', () => {
 			sinon.assert.callCount(spy, 3);
 			sinon.assert.alwaysCalledWithMatch(spy, regex);
 
-			expect(emitter.getListener(event + '/success')).to.be.an('array').and.to.have.length.of(1);
+			expect(emitter.listener(event + '/success')).to.be.an('array').and.to.have.length.of(1);
 		});
 
 		it('should not unregister an event listener when removing an expression listener', () => {
@@ -244,13 +244,13 @@ describe('class/emitter.js', () => {
 			sinon.assert.callCount(spy, 3);
 			sinon.assert.alwaysCalledWithMatch(spy, regex);
 
-			expect(emitter.getListener(event + '/success')).to.be.an('array').and.to.have.length.of(1);
+			expect(emitter.listener(event + '/success')).to.be.an('array').and.to.have.length.of(1);
 		});
 	});
 
-	describe('getListener()', () => {
+	describe('listener()', () => {
 		it('should return an empty array for events without actual listeners', () => {
-			let result = emitter.getListener(event);
+			let result = emitter.listener(event);
 
 			expect(result).to.be.an('array').and.to.have.length.of(0);
 		});
@@ -267,7 +267,7 @@ describe('class/emitter.js', () => {
 				.on(event, listener)
 				.off(event, listener);
 
-			result = emitter.getListener(event);
+			result = emitter.listener(event);
 
 			expect(result).to.be.an('array').and.to.have.length.of(3);
 		});
@@ -282,7 +282,7 @@ describe('class/emitter.js', () => {
 				.on(event, listeners[1], true)
 				.on(regex, listeners[2], true);
 
-			result = emitter.getListener(event);
+			result = emitter.listener(event);
 
 			expect(result).to.be.an('array').and.to.have.length.of(3).and.to.deep.equal(listeners.reverse());
 		});
