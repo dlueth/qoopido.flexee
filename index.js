@@ -315,7 +315,7 @@ class Emitter {
 	 *
 	 * @returns {Object[]}
 	 */
-	getListener(event) {
+	listener(event) {
 		return retrieveListener.call(this, event).map(mapListener);
 	}
 }
