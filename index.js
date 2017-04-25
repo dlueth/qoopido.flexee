@@ -1,6 +1,7 @@
 'use strict';
 
-const global = new WeakMap();
+const validator = require('./helper/validator.js');
+const global    = new WeakMap();
 
 /**
  * Remove an event listener
@@ -65,50 +66,6 @@ function applyEvent(callback, event, details) {
 }
 
 /**
- * Check if identifier is of valid tye
- *
- * @param {*} identifier
- *
- * @returns {Boolean}
- */
-function isValidIdentifier(identifier) {
-	return (isString(identifier) || isExpression(identifier));
-}
-
-/**
- * Check if value is a valid callback
- *
- * @param {*} value
- *
- * @returns {Boolean}
- */
-function isValidCallback(value) {
-	return (typeof value === 'function');
-}
-
-/**
- * Check if value is of type string
- *
- * @param {*} value
- *
- * @returns {Boolean}
- */
-function isString(value) {
-	return (typeof value === 'string');
-}
-
-/**
- * Check if value is a RegExp
- *
- * @param {*} value
- *
- * @returns {Boolean}
- */
-function isExpression(value) {
-	return (value instanceof RegExp);
-}
-
-/**
  * Subscribe an event listener
  *
  * @param {String} event
@@ -168,7 +125,7 @@ function unsubscribeExpression(expression, callback) {
 function retrieveListener(event) {
 	let listener;
 
-	if(isString(event)) {
+	if(validator.isString(event)) {
 		let storage  = global.get(this);
 
 		listener = storage.events[event] ? storage.events[event].slice() : [];
@@ -214,7 +171,7 @@ class Emitter {
 	/**
 	 * Subscribe an event listener
 	 *
-	 * @param {String|RegExp} identifier
+	 * @param {String|RegExp|Object[]} identifier
 	 * @param {Function} callback
 	 * @param {Boolean=} prepend
 	 * @param {Number=} limit
@@ -222,15 +179,21 @@ class Emitter {
 	 * @returns {Emitter}
 	 */
 	on(identifier, callback, prepend, limit) {
-		if(isValidIdentifier(identifier) && isValidCallback(callback)) {
+		if(validator.isIdentifier(identifier) && validator.isCallback(callback)) {
 			let storage = global.get(this);
 
-			if(isString(identifier)) {
+			if(validator.isString(identifier)) {
 				subscribeEvent.call(storage, identifier, callback, prepend, limit);
 			}
 
-			if(isExpression(identifier)) {
+			if(validator.isExpression(identifier)) {
 				subscribeExpression.call(storage, identifier, callback, prepend, limit);
+			}
+
+			if(validator.isArray(identifier)) {
+				identifier.forEach((identifier) => {
+					this.on(identifier, callback, prepend, limit);
+				});
 			}
 		}
 
@@ -240,7 +203,7 @@ class Emitter {
 	/**
 	 * Subscribe a once only event listener
 	 *
-	 * @param {String|RegExp} identifier
+	 * @param {String|RegExp|Object[]} identifier
 	 * @param {Function} callback
 	 * @param {Boolean=} prepend
 	 *
@@ -253,7 +216,7 @@ class Emitter {
 	/**
 	 * Subscribe a limited event listener
 	 *
-	 * @param {String|RegExp} identifier
+	 * @param {String|RegExp|Object[]} identifier
 	 * @param {Number} limit
 	 * @param {Function} callback
 	 * @param {Boolean=} prepend
@@ -267,21 +230,27 @@ class Emitter {
 	/**
 	 * Unsubscribe an event listener
 	 *
-	 * @param {String|RegExp} identifier
+	 * @param {String|RegExp|Object[]} identifier
 	 * @param {Function=} callback
 	 *
 	 * @returns {Emitter}
 	 */
 	off(identifier, callback) {
-		if(isValidIdentifier(identifier) && (isValidCallback(callback) || typeof callback === 'undefined')) {
+		if(validator.isIdentifier(identifier) && (validator.isCallback(callback) || typeof callback === 'undefined')) {
 			let storage = global.get(this);
 
-			if(isString(identifier)) {
+			if(validator.isString(identifier)) {
 				unsubscribeEvent.call(storage, identifier, callback)
 			}
 
-			if(isExpression(identifier)) {
+			if(validator.isExpression(identifier)) {
 				unsubscribeExpression.call(storage, identifier, callback);
+			}
+
+			if(validator.isArray(identifier)) {
+				identifier.forEach((identifier) => {
+					this.off(identifier, callback);
+				});
 			}
 		}
 
