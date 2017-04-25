@@ -1,6 +1,6 @@
 {
   "name": "flexee",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Flexible event emitter for Node.js supporting RegExp-based event subscription",
   "main": "index.js",
   "author": {
