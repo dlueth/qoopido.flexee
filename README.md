@@ -10,7 +10,7 @@
 [![NPM downloads](https://img.shields.io/npm/dt/flexee.svg?style=flat-square)](https://www.npmjs.org/package/flexee)
 
 
-Flexible & dead simple event emitter for Node.js supporting RegExp-based event subscription.
+Flexible & dead simple event emitter for Node.js supporting RegExp-based event subscription and global broadcast listeners.
 
 ## Installation
 
@@ -77,3 +77,26 @@ Calling ```listener``` will always return an array which may be empty.
 
 ## Chaining
 Any method beside ```listener``` returns the current instance to offer a chainable interface.
+
+
+## Broadcast listeners
+It is possible to not only subscribe to events emitted by a known instance of ```Flexee``` but also to subscribe to events emitted by any existing and/or future instance. This behaviour allows, e.g., to subscribe to events globally for logging purposes and the likes.
+
+```
+var Flexee = require('flexee');
+
+// register a broadcast listener 
+Flexee.on({String|RegExp|Object[]} identifier, {Function} callback, {Boolean=} prepend, {Number=} limit);
+
+// register a once only broadcast listener
+Flexee.once({String|RegExp|Object[]} identifier, {Function} callback, {Boolean=} prepend);
+
+// register a broadcast listener that gets called a limited number of times
+Flexee.limit({String|RegExp|Object[]} identifier, {Number} limit, {Function} callback);
+
+// unregsiter a broadcast listener
+Flexee.off({String|RegExp|Object[]} identifier, {Function=} callback);
+
+// retrieve boradcast listeners for a specific event
+Flexee.listener({String} name);
+```
