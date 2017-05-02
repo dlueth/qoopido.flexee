@@ -16,10 +16,18 @@ class Event {
 		global.set(this, { isCanceled: false });
 	}
 
+	/**
+	 * Cancel an events processing immediately
+	 */
 	cancel() {
 		global.get(this).isCanceled = true;
 	}
 
+	/**
+	 * Retrieve an events cancelation state
+	 *
+	 * @returns {Boolean}
+	 */
 	get isCanceled() {
 		return global.get(this).isCanceled;
 	}
