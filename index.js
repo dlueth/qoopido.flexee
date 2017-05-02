@@ -3,7 +3,7 @@
 const Listener  = require('./class/listener.js');
 const Event     = require('./class/event.js');
 const validator = require('./helper/validator.js');
-const global    = new WeakMap();
+const weakmap   = new WeakMap();
 
 /**
  * Remove an event listener
@@ -121,16 +121,21 @@ function unsubscribeExpression(expression, callback) {
  * Retrieve all listeners for a certain event
  *
  * @param {String} name
+ * @param {Boolean=} isGlobal
  *
  * @returns {Object[]}
  */
-function retrieveListener(name) {
+function retrieveListener(name, isGlobal) {
 	let listener;
 
 	if(validator.isString(name)) {
-		let storage  = global.get(this);
+		let storage  = weakmap.get(this);
 
 		listener = storage.events[name] ? storage.events[name].slice() : [];
+
+		if(isGlobal !== true) {
+			listener = listener.concat(retrieveListener.call(global, name, true));
+		}
 
 		storage.expressions.forEach((expression) => {
 			if(expression.identifier.test(name)) {
@@ -149,7 +154,7 @@ class Emitter {
 	 * Emitter constructor
 	 */
 	constructor() {
-		global.set(this, { timestamp: +new Date(), events: {}, expressions: [] });
+		weakmap.set(this, { timestamp: +new Date(), events: {}, expressions: [] });
 	}
 
 	/**
@@ -164,7 +169,7 @@ class Emitter {
 	 */
 	on(identifier, callback, prepend, limit) {
 		if(validator.isIdentifier(identifier) && validator.isCallback(callback)) {
-			let storage = global.get(this);
+			let storage = weakmap.get(this);
 
 			if(validator.isString(identifier)) {
 				subscribeEvent.call(storage, identifier, callback, prepend, limit);
@@ -221,7 +226,7 @@ class Emitter {
 	 */
 	off(identifier, callback) {
 		if(validator.isIdentifier(identifier) && (validator.isCallback(callback) || typeof callback === 'undefined')) {
-			let storage = global.get(this);
+			let storage = weakmap.get(this);
 
 			if(validator.isString(identifier)) {
 				unsubscribeEvent.call(storage, identifier, callback)
@@ -280,5 +285,13 @@ class Emitter {
 		return retrieveListener.call(this, name).map(mapListener);
 	}
 }
+
+const global = new Emitter();
+
+Emitter.on       = global.on;
+Emitter.once     = global.once;
+Emitter.limit    = global.limit;
+Emitter.off      = global.off;
+Emitter.listener = global.listener;
 
 module.exports = Emitter;
