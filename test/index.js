@@ -43,6 +43,23 @@ describe('class/emitter.js', () => {
 			sinon.assert.callCount(spy, 1);
 			sinon.assert.calledWithExactly(spy, { name: event, context: emitter }, 'first', 'second');
 		});
+
+		it('should correctly cancel an event', () => {
+			function cancel(event) {
+				event.cancel();
+			}
+
+			emitter
+				.on(event, spy)
+				.on(event, cancel)
+				.on(event, spy)
+				.emit(event);
+
+			sinon.assert.called(spy);
+			sinon.assert.calledOn(spy, emitter);
+			sinon.assert.callCount(spy, 1);
+			sinon.assert.calledWithExactly(spy, { name: event, context: emitter });
+		});
 	});
 
 	describe('on()', () => {
