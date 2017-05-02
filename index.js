@@ -1,5 +1,6 @@
 'use strict';
 
+const Listener  = require('./class/listener.js');
 const validator = require('./helper/validator.js');
 const global    = new WeakMap();
 
@@ -142,24 +143,6 @@ function retrieveListener(event) {
 	return listener || [];
 }
 
-class Listener {
-	/**
-	 * Listener constructor
-	 *
-	 * @param {Object} storage
-	 * @param {String|RegExp} identifier
-	 * @param {Function} callback
-	 * @param {Boolean=} prepend
-	 * @param {Number=} limit
-	 */
-	constructor(storage, identifier, callback, prepend, limit) {
-		this.identifier = identifier;
-		this.callback   = callback;
-		this.timestamp  = !prepend ? +new Date() : (storage.timestamp = storage.timestamp - 1);
-		this.remaining  = limit;
-	}
-}
-
 class Emitter {
 	/**
 	 * Emitter constructor
@@ -266,13 +249,19 @@ class Emitter {
 	 * @returns {Emitter}
 	 */
 	emit(event, ...details) {
-		retrieveListener.call(this, event).forEach((listener) => {
-			applyEvent.call(this, listener.callback, event, details);
+		let listener = retrieveListener.call(this, event);
 
-			if(listener.remaining && !(listener.remaining -= 1)) {
-				this.off(listener.identifier, listener.callback);
-			}
-		});
+		if(listener.length) {
+			let event = { event: event, context: this };
+
+			listener.forEach((listener) => {
+				applyEvent.call(this, listener.callback, event, details);
+
+				if(listener.remaining && !(listener.remaining -= 1)) {
+					this.off(listener.identifier, listener.callback);
+				}
+			});
+		}
 
 		return this;
 	}
