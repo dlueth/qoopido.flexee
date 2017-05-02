@@ -44,6 +44,18 @@ describe('class/emitter.js', () => {
 			sinon.assert.calledWithExactly(spy, { name: event, context: emitter }, 'first', 'second');
 		});
 
+		it('should correctly execute global listeners', () => {
+			Emitter.on(event, spy);
+
+			emitter
+				.emit(event);
+
+			sinon.assert.called(spy);
+			sinon.assert.calledOn(spy, emitter);
+			sinon.assert.callCount(spy, 1);
+			sinon.assert.calledWithExactly(spy, { name: event, context: emitter });
+		});
+
 		it('should correctly cancel an event', () => {
 			function cancel(event) {
 				event.cancel();
