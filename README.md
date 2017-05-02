@@ -58,11 +58,19 @@ emitter.off({String|RegExp|Object[]} identifier, {Function=} callback);
 ```identifier``` can, again, either be a specific event name as ```String```, a pattern of event names as ```RegExp``` or an ```array``` of both. Just keep in mind that unsubscribing from a specific event name will never unsubscribe a RegExp-listener and vice versa.
 
 
+# Emitting events
+Any instance of ```Flexee``` has its own ```emit``` method:
+
+```
+emitter.emit({String} name, ...details);
+```
+
+
 ## Retrieving listener
 If you need to retrieve any existing listener for a specific event simply use
  
 ```
-emitter.listener({String} event);
+emitter.listener({String} name);
 ```
 
 Calling ```listener``` will always return an array which may be empty.
