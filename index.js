@@ -121,11 +121,10 @@ function unsubscribeExpression(expression, callback) {
  * Retrieve all listeners for a certain event
  *
  * @param {String} name
- * @param {Boolean=} isGlobal
  *
  * @returns {Object[]}
  */
-function retrieveListener(name, isGlobal) {
+function retrieveListener(name) {
 	let listener;
 
 	if(validator.isString(name)) {
@@ -133,8 +132,8 @@ function retrieveListener(name, isGlobal) {
 
 		listener = storage.events[name] ? storage.events[name].slice() : [];
 
-		if(isGlobal !== true) {
-			listener = listener.concat(retrieveListener.call(global, name, true));
+		if(this !== broadcast) {
+			listener = listener.concat(retrieveListener.call(broadcast, name));
 		}
 
 		storage.expressions.forEach((expression) => {
@@ -286,12 +285,12 @@ class Emitter {
 	}
 }
 
-const global = new Emitter();
+const broadcast = new Emitter();
 
-Emitter.on       = global.on.bind(global);
-Emitter.once     = global.once.bind(global);
-Emitter.limit    = global.limit.bind(global);
-Emitter.off      = global.off.bind(global);
-Emitter.listener = global.listener.bind(global);
+Emitter.on       = broadcast.on.bind(broadcast);
+Emitter.once     = broadcast.once.bind(broadcast);
+Emitter.limit    = broadcast.limit.bind(broadcast);
+Emitter.off      = broadcast.off.bind(broadcast);
+Emitter.listener = broadcast.listener.bind(broadcast);
 
 module.exports = Emitter;
