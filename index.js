@@ -288,10 +288,10 @@ class Emitter {
 
 const global = new Emitter();
 
-Emitter.on       = global.on;
-Emitter.once     = global.once;
-Emitter.limit    = global.limit;
-Emitter.off      = global.off;
-Emitter.listener = global.listener;
+Emitter.on       = global.on.bind(global);
+Emitter.once     = global.once.bind(global);
+Emitter.limit    = global.limit.bind(global);
+Emitter.off      = global.off.bind(global);
+Emitter.listener = global.listener.bind(global);
 
 module.exports = Emitter;
