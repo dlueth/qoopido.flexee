@@ -1,6 +1,7 @@
 'use strict';
 
 const Listener  = require('./class/listener.js');
+const Event     = require('./class/event.js');
 const validator = require('./helper/validator.js');
 const global    = new WeakMap();
 
@@ -59,7 +60,7 @@ function mapListener(listener) {
  * Apply an event + optional details to a listener
  *
  * @param {Function} callback
- * @param {String} event
+ * @param {Event} event
  * @param {Object[]=} details
  */
 function applyEvent(callback, event, details) {
@@ -69,27 +70,27 @@ function applyEvent(callback, event, details) {
 /**
  * Subscribe an event listener
  *
- * @param {String} event
+ * @param {String} name
  * @param {Function} callback
  * @param {Boolean=} prepend
  * @param {Number=} limit
  */
-function subscribeEvent(event, callback, prepend, limit) {
-	(this.events[event] = this.events[event] || []).push(new Listener(this, event, callback, prepend, limit));
+function subscribeEvent(name, callback, prepend, limit) {
+	(this.events[name] = this.events[name] || []).push(new Listener(this, name, callback, prepend, limit));
 }
 
 /**
  * Unregister an event listener
  *
- * @param {String} event
+ * @param {String} name
  * @param {Function} callback
  */
-function unsubscribeEvent(event, callback) {
-	if(this.events[event]) {
+function unsubscribeEvent(name, callback) {
+	if(this.events[name]) {
 		if(callback) {
-			this.events[event] = this.events[event].filter(filterRemoveEvent, callback);
+			this.events[name] = this.events[name].filter(filterRemoveEvent, callback);
 		} else {
-			this.events[event].length = 0;
+			this.events[name].length = 0;
 		}
 	}
 }
@@ -119,20 +120,20 @@ function unsubscribeExpression(expression, callback) {
 /**
  * Retrieve all listeners for a certain event
  *
- * @param {String} event
+ * @param {String} name
  *
  * @returns {Object[]}
  */
-function retrieveListener(event) {
+function retrieveListener(name) {
 	let listener;
 
-	if(validator.isString(event)) {
+	if(validator.isString(name)) {
 		let storage  = global.get(this);
 
-		listener = storage.events[event] ? storage.events[event].slice() : [];
+		listener = storage.events[name] ? storage.events[name].slice() : [];
 
 		storage.expressions.forEach((expression) => {
-			if(expression.identifier.test(event)) {
+			if(expression.identifier.test(name)) {
 				listener.push(expression);
 			}
 		});
@@ -243,23 +244,25 @@ class Emitter {
 	/**
 	 * Emit an event
 	 *
-	 * @param {String} event
+	 * @param {String} name
 	 * @param {...*} details
 	 *
 	 * @returns {Emitter}
 	 */
-	emit(event, ...details) {
-		let listener = retrieveListener.call(this, event);
+	emit(name, ...details) {
+		let listener = retrieveListener.call(this, name);
 
 		if(listener.length) {
-			let event = { event: event, context: this };
+			let event = new Event(name, this);
 
-			listener.forEach((listener) => {
-				applyEvent.call(this, listener.callback, event, details);
+			listener.some((listener) => {
+				applyEvent.call(this, listener.callback, event, details)
 
 				if(listener.remaining && !(listener.remaining -= 1)) {
 					this.off(listener.identifier, listener.callback);
 				}
+
+				return event.isCanceled;
 			});
 		}
 
@@ -269,12 +272,12 @@ class Emitter {
 	/**
 	 * Retrieve all listeners for a certain event
 	 *
-	 * @param {String} event
+	 * @param {String} name
 	 *
 	 * @returns {Object[]}
 	 */
-	listener(event) {
-		return retrieveListener.call(this, event).map(mapListener);
+	listener(name) {
+		return retrieveListener.call(this, name).map(mapListener);
 	}
 }
 

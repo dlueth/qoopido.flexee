@@ -30,7 +30,7 @@ describe('class/emitter.js', () => {
 			sinon.assert.called(spy);
 			sinon.assert.calledOn(spy, emitter);
 			sinon.assert.callCount(spy, 1);
-			sinon.assert.calledWithExactly(spy, event);
+			sinon.assert.calledWithExactly(spy, { name: event, context: emitter });
 		});
 
 		it('should emit an event with additional parameters', () => {
@@ -41,7 +41,7 @@ describe('class/emitter.js', () => {
 			sinon.assert.called(spy);
 			sinon.assert.calledOn(spy, emitter);
 			sinon.assert.callCount(spy, 1);
-			sinon.assert.calledWithExactly(spy, event, 'first', 'second');
+			sinon.assert.calledWithExactly(spy, { name: event, context: emitter }, 'first', 'second');
 		});
 	});
 
@@ -55,11 +55,15 @@ describe('class/emitter.js', () => {
 			sinon.assert.called(spy);
 			sinon.assert.calledOn(spy, emitter);
 			sinon.assert.callCount(spy, 2);
-			sinon.assert.alwaysCalledWithExactly(spy, event);
+			sinon.assert.alwaysCalledWithExactly(spy, { name: event, context: emitter });
 		});
 
 		it('should call an expression listener repeatedly', () => {
 			let regex = new RegExp('^' + event + '/(?:success|failure)');
+
+			function testEvent(event) {
+				return regex.test(event.name) && event.context instanceof Emitter;
+			}
 
 			emitter
 				.on(regex, spy)
@@ -72,7 +76,7 @@ describe('class/emitter.js', () => {
 			sinon.assert.called(spy);
 			sinon.assert.calledOn(spy, emitter);
 			sinon.assert.callCount(spy, 2);
-			sinon.assert.alwaysCalledWithMatch(spy, regex);
+			sinon.assert.alwaysCalledWithMatch(spy, testEvent);
 		});
 
 		it('should call an array of listeners repeatedly', () => {
@@ -84,7 +88,7 @@ describe('class/emitter.js', () => {
 			sinon.assert.called(spy);
 			sinon.assert.calledOn(spy, emitter);
 			sinon.assert.callCount(spy, 4);
-			sinon.assert.alwaysCalledWithExactly(spy, event);
+			sinon.assert.alwaysCalledWithExactly(spy, { name: event, context: emitter });
 		});
 	});
 
@@ -98,7 +102,7 @@ describe('class/emitter.js', () => {
 			sinon.assert.called(spy);
 			sinon.assert.calledOn(spy, emitter);
 			sinon.assert.callCount(spy, 1);
-			sinon.assert.calledWithExactly(spy, event);
+			sinon.assert.calledWithExactly(spy, { name: event, context: emitter });
 		});
 
 		it('should call an expression listener only once', () => {
@@ -114,7 +118,7 @@ describe('class/emitter.js', () => {
 			sinon.assert.called(spy);
 			sinon.assert.calledOn(spy, emitter);
 			sinon.assert.callCount(spy, 1);
-			sinon.assert.calledWithExactly(spy, event + '/success');
+			sinon.assert.calledWithExactly(spy, { name: event + '/success', context: emitter });
 		});
 
 		it('should call an array of listeners only once', () => {
@@ -126,7 +130,7 @@ describe('class/emitter.js', () => {
 			sinon.assert.called(spy);
 			sinon.assert.calledOn(spy, emitter);
 			sinon.assert.callCount(spy, 2);
-			sinon.assert.alwaysCalledWithExactly(spy, event);
+			sinon.assert.alwaysCalledWithExactly(spy, { name: event, context: emitter });
 		});
 	});
 
@@ -144,11 +148,15 @@ describe('class/emitter.js', () => {
 			sinon.assert.called(spy);
 			sinon.assert.calledOn(spy, emitter);
 			sinon.assert.callCount(spy, 3);
-			sinon.assert.alwaysCalledWithExactly(spy, event);
+			sinon.assert.alwaysCalledWithExactly(spy, { name: event, context: emitter });
 		});
 
 		it('should call an expression listener a limited number of times', () => {
 			let regex = new RegExp('^' + event + '/(?:success|failure)');
+
+			function testEvent(event) {
+				return regex.test(event.name) && event.context instanceof Emitter;
+			}
 
 			emitter
 				.limit(regex, 3, spy)
@@ -162,7 +170,7 @@ describe('class/emitter.js', () => {
 			sinon.assert.called(spy);
 			sinon.assert.calledOn(spy, emitter);
 			sinon.assert.callCount(spy, 3);
-			sinon.assert.alwaysCalledWithMatch(spy, regex);
+			sinon.assert.alwaysCalledWithMatch(spy, testEvent);
 		});
 
 		it('should call an array of event listeners a limited number of times', () => {
@@ -178,7 +186,7 @@ describe('class/emitter.js', () => {
 			sinon.assert.called(spy);
 			sinon.assert.calledOn(spy, emitter);
 			sinon.assert.callCount(spy, 6);
-			sinon.assert.alwaysCalledWithExactly(spy, event);
+			sinon.assert.alwaysCalledWithExactly(spy, { name: event, context: emitter });
 		});
 	});
 
@@ -193,7 +201,7 @@ describe('class/emitter.js', () => {
 			sinon.assert.called(spy);
 			sinon.assert.calledOn(spy, emitter);
 			sinon.assert.callCount(spy, 1);
-			sinon.assert.calledWithExactly(spy, event);
+			sinon.assert.calledWithExactly(spy, { name: event, context: emitter });
 
 			expect(emitter.listener(event)).to.be.an('array').and.to.have.length.of(0);
 		});
@@ -209,13 +217,17 @@ describe('class/emitter.js', () => {
 			sinon.assert.called(spy);
 			sinon.assert.calledOn(spy, emitter);
 			sinon.assert.callCount(spy, 2);
-			sinon.assert.alwaysCalledWithExactly(spy, event);
+			sinon.assert.alwaysCalledWithExactly(spy, { name: event, context: emitter });
 
 			expect(emitter.listener(event)).to.be.an('array').and.to.have.length.of(0);
 		});
 
 		it('should unregister an expression listener', () => {
 			let regex = new RegExp('^' + event + '/(?:success|failure)');
+
+			function testEvent(event) {
+				return regex.test(event.name) && event.context instanceof Emitter;
+			}
 
 			emitter
 				.on(regex, spy)
@@ -228,13 +240,17 @@ describe('class/emitter.js', () => {
 			sinon.assert.called(spy);
 			sinon.assert.calledOn(spy, emitter);
 			sinon.assert.callCount(spy, 2);
-			sinon.assert.alwaysCalledWithMatch(spy, regex);
+			sinon.assert.alwaysCalledWithMatch(spy, testEvent);
 
 			expect(emitter.listener(event)).to.be.an('array').and.to.have.length.of(0);
 		});
 
 		it('should unregister all expression listeners when callback-function is omitted', () => {
 			let regex = new RegExp('^' + event + '/(?:success|failure)');
+
+			function testEvent(event) {
+				return regex.test(event.name) && event.context instanceof Emitter;
+			}
 
 			emitter
 				.on(regex, spy)
@@ -246,7 +262,7 @@ describe('class/emitter.js', () => {
 			sinon.assert.called(spy);
 			sinon.assert.calledOn(spy, emitter);
 			sinon.assert.callCount(spy, 2);
-			sinon.assert.alwaysCalledWithMatch(spy, regex);
+			sinon.assert.alwaysCalledWithMatch(spy, testEvent);
 
 			expect(emitter.listener(event)).to.be.an('array').and.to.have.length.of(0);
 		});
@@ -261,13 +277,17 @@ describe('class/emitter.js', () => {
 			sinon.assert.called(spy);
 			sinon.assert.calledOn(spy, emitter);
 			sinon.assert.callCount(spy, 2);
-			sinon.assert.alwaysCalledWithExactly(spy, event);
+			sinon.assert.alwaysCalledWithExactly(spy, { name: event, context: emitter });
 
 			expect(emitter.listener(event)).to.be.an('array').and.to.have.length.of(0);
 		});
 
 		it('should not unregister expression listeners when removing an event listener', () => {
 			let regex = new RegExp('^' + event + '/(?:success|failure)');
+
+			function testEvent(event) {
+				return regex.test(event.name) && event.context instanceof Emitter;
+			}
 
 			emitter
 				.on(event + '/success', spy)
@@ -279,13 +299,17 @@ describe('class/emitter.js', () => {
 			sinon.assert.called(spy);
 			sinon.assert.calledOn(spy, emitter);
 			sinon.assert.callCount(spy, 3);
-			sinon.assert.alwaysCalledWithMatch(spy, regex);
+			sinon.assert.alwaysCalledWithMatch(spy, testEvent);
 
 			expect(emitter.listener(event + '/success')).to.be.an('array').and.to.have.length.of(1);
 		});
 
 		it('should not unregister an event listener when removing an expression listener', () => {
 			let regex = new RegExp('^' + event + '/(?:success|failure)');
+
+			function testEvent(event) {
+				return regex.test(event.name) && event.context === emitter;
+			}
 
 			emitter
 				.on(event + '/success', spy)
@@ -297,7 +321,7 @@ describe('class/emitter.js', () => {
 			sinon.assert.called(spy);
 			sinon.assert.calledOn(spy, emitter);
 			sinon.assert.callCount(spy, 3);
-			sinon.assert.alwaysCalledWithMatch(spy, regex);
+			sinon.assert.alwaysCalledWithMatch(spy, testEvent);
 
 			expect(emitter.listener(event + '/success')).to.be.an('array').and.to.have.length.of(1);
 		});
