@@ -44,7 +44,7 @@ describe('class/emitter.js', () => {
 			sinon.assert.calledWithExactly(spy, { name: event, context: emitter }, 'first', 'second');
 		});
 
-		it('should correctly execute global listeners', () => {
+		it('should correctly execute broadcast listeners', () => {
 			Emitter.on(event, spy);
 
 			emitter
