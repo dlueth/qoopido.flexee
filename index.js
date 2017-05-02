@@ -1,7 +1,9 @@
 'use strict';
 
+const Listener  = require('./class/listener.js');
+const Event     = require('./class/event.js');
 const validator = require('./helper/validator.js');
-const global    = new WeakMap();
+const weakmap   = new WeakMap();
 
 /**
  * Remove an event listener
@@ -58,7 +60,7 @@ function mapListener(listener) {
  * Apply an event + optional details to a listener
  *
  * @param {Function} callback
- * @param {String} event
+ * @param {Event} event
  * @param {Object[]=} details
  */
 function applyEvent(callback, event, details) {
@@ -68,27 +70,27 @@ function applyEvent(callback, event, details) {
 /**
  * Subscribe an event listener
  *
- * @param {String} event
+ * @param {String} name
  * @param {Function} callback
  * @param {Boolean=} prepend
  * @param {Number=} limit
  */
-function subscribeEvent(event, callback, prepend, limit) {
-	(this.events[event] = this.events[event] || []).push(new Listener(this, event, callback, prepend, limit));
+function subscribeEvent(name, callback, prepend, limit) {
+	(this.events[name] = this.events[name] || []).push(new Listener(this, name, callback, prepend, limit));
 }
 
 /**
  * Unregister an event listener
  *
- * @param {String} event
+ * @param {String} name
  * @param {Function} callback
  */
-function unsubscribeEvent(event, callback) {
-	if(this.events[event]) {
+function unsubscribeEvent(name, callback) {
+	if(this.events[name]) {
 		if(callback) {
-			this.events[event] = this.events[event].filter(filterRemoveEvent, callback);
+			this.events[name] = this.events[name].filter(filterRemoveEvent, callback);
 		} else {
-			this.events[event].length = 0;
+			this.events[name].length = 0;
 		}
 	}
 }
@@ -118,20 +120,24 @@ function unsubscribeExpression(expression, callback) {
 /**
  * Retrieve all listeners for a certain event
  *
- * @param {String} event
+ * @param {String} name
  *
  * @returns {Object[]}
  */
-function retrieveListener(event) {
+function retrieveListener(name) {
 	let listener;
 
-	if(validator.isString(event)) {
-		let storage  = global.get(this);
+	if(validator.isString(name)) {
+		let storage  = weakmap.get(this);
 
-		listener = storage.events[event] ? storage.events[event].slice() : [];
+		listener = storage.events[name] ? storage.events[name].slice() : [];
+
+		if(this !== broadcast) {
+			listener = listener.concat(retrieveListener.call(broadcast, name));
+		}
 
 		storage.expressions.forEach((expression) => {
-			if(expression.identifier.test(event)) {
+			if(expression.identifier.test(name)) {
 				listener.push(expression);
 			}
 		});
@@ -142,30 +148,12 @@ function retrieveListener(event) {
 	return listener || [];
 }
 
-class Listener {
-	/**
-	 * Listener constructor
-	 *
-	 * @param {Object} storage
-	 * @param {String|RegExp} identifier
-	 * @param {Function} callback
-	 * @param {Boolean=} prepend
-	 * @param {Number=} limit
-	 */
-	constructor(storage, identifier, callback, prepend, limit) {
-		this.identifier = identifier;
-		this.callback   = callback;
-		this.timestamp  = !prepend ? +new Date() : (storage.timestamp = storage.timestamp - 1);
-		this.remaining  = limit;
-	}
-}
-
 class Emitter {
 	/**
 	 * Emitter constructor
 	 */
 	constructor() {
-		global.set(this, { timestamp: +new Date(), events: {}, expressions: [] });
+		weakmap.set(this, { timestamp: +new Date(), events: {}, expressions: [] });
 	}
 
 	/**
@@ -180,7 +168,7 @@ class Emitter {
 	 */
 	on(identifier, callback, prepend, limit) {
 		if(validator.isIdentifier(identifier) && validator.isCallback(callback)) {
-			let storage = global.get(this);
+			let storage = weakmap.get(this);
 
 			if(validator.isString(identifier)) {
 				subscribeEvent.call(storage, identifier, callback, prepend, limit);
@@ -237,7 +225,7 @@ class Emitter {
 	 */
 	off(identifier, callback) {
 		if(validator.isIdentifier(identifier) && (validator.isCallback(callback) || typeof callback === 'undefined')) {
-			let storage = global.get(this);
+			let storage = weakmap.get(this);
 
 			if(validator.isString(identifier)) {
 				unsubscribeEvent.call(storage, identifier, callback)
@@ -260,19 +248,27 @@ class Emitter {
 	/**
 	 * Emit an event
 	 *
-	 * @param {String} event
+	 * @param {String} name
 	 * @param {...*} details
 	 *
 	 * @returns {Emitter}
 	 */
-	emit(event, ...details) {
-		retrieveListener.call(this, event).forEach((listener) => {
-			applyEvent.call(this, listener.callback, event, details);
+	emit(name, ...details) {
+		let listener = retrieveListener.call(this, name);
 
-			if(listener.remaining && !(listener.remaining -= 1)) {
-				this.off(listener.identifier, listener.callback);
-			}
-		});
+		if(listener.length) {
+			let event = new Event(name, this);
+
+			listener.some((listener) => {
+				applyEvent.call(this, listener.callback, event, details)
+
+				if(listener.remaining && !(listener.remaining -= 1)) {
+					this.off(listener.identifier, listener.callback);
+				}
+
+				return event.isCanceled;
+			});
+		}
 
 		return this;
 	}
@@ -280,13 +276,21 @@ class Emitter {
 	/**
 	 * Retrieve all listeners for a certain event
 	 *
-	 * @param {String} event
+	 * @param {String} name
 	 *
 	 * @returns {Object[]}
 	 */
-	listener(event) {
-		return retrieveListener.call(this, event).map(mapListener);
+	listener(name) {
+		return retrieveListener.call(this, name).map(mapListener);
 	}
 }
+
+const broadcast = new Emitter();
+
+Emitter.on       = broadcast.on.bind(broadcast);
+Emitter.once     = broadcast.once.bind(broadcast);
+Emitter.limit    = broadcast.limit.bind(broadcast);
+Emitter.off      = broadcast.off.bind(broadcast);
+Emitter.listener = broadcast.listener.bind(broadcast);
 
 module.exports = Emitter;

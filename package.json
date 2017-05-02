@@ -1,7 +1,7 @@
 {
   "name": "flexee",
-  "version": "1.0.2",
-  "description": "Flexible event emitter for Node.js supporting RegExp-based event subscription",
+  "version": "2.0.0",
+  "description": "Flexible event emitter for Node.js supporting RegExp-based event subscription and global broadcast listeners",
   "main": "index.js",
   "author": {
     "name": "Dirk Lueth",
