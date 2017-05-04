@@ -6,12 +6,29 @@ const validator = require('./helper/validator.js');
 const weakmap   = new WeakMap();
 
 /**
+ * Initialize a weakmap for a given context
+ *
+ * @param {Emitter} context
+ *
+ * @returns {Emitter}
+ *
+ * @ignore
+ */
+function initialize(context) {
+	weakmap.set(context, { timestamp: +new Date(), events: {}, expressions: [] });
+
+	return context;
+}
+
+/**
  * Remove an event listener
  *
  * @param {Listener} listener
  * @param {Function} listener.callback
  *
  * @returns {Boolean}
+ *
+ * @ignore
  */
 function filterRemoveEvent(listener) {
 	return listener.callback !== this;
@@ -25,6 +42,8 @@ function filterRemoveEvent(listener) {
  * @param {Function} listener.callback
  *
  * @returns {Boolean}
+ *
+ * @ignore
  */
 function filterRemoveExpression(listener) {
 	return !(listener.identifier.toString() === this.identifier.toString() && (typeof this.callback === 'undefined' || listener.callback === this.callback));
@@ -39,6 +58,8 @@ function filterRemoveExpression(listener) {
  * @param {int} b.timestamp
  *
  * @returns {Number}
+ *
+ * @ignore
  */
 function sortListener(a, b) {
 	return a.timestamp - b.timestamp;
@@ -51,6 +72,8 @@ function sortListener(a, b) {
  * @param {Function} listener.callback
  *
  * @returns {Function}
+ *
+ * @ignore
  */
 function mapListener(listener) {
 	return listener.callback;
@@ -62,6 +85,8 @@ function mapListener(listener) {
  * @param {Function} callback
  * @param {Event} event
  * @param {Object[]=} details
+ *
+ * @ignore
  */
 function applyEvent(callback, event, details) {
 	callback.apply(this, Array.prototype.concat(event, details));
@@ -74,6 +99,8 @@ function applyEvent(callback, event, details) {
  * @param {Function} callback
  * @param {Boolean=} prepend
  * @param {Number=} limit
+ *
+ * @ignore
  */
 function subscribeEvent(name, callback, prepend, limit) {
 	(this.events[name] = this.events[name] || []).push(new Listener(this, name, callback, prepend, limit));
@@ -84,6 +111,8 @@ function subscribeEvent(name, callback, prepend, limit) {
  *
  * @param {String} name
  * @param {Function} callback
+ *
+ * @ignore
  */
 function unsubscribeEvent(name, callback) {
 	if(this.events[name]) {
@@ -102,6 +131,8 @@ function unsubscribeEvent(name, callback) {
  * @param {Function} callback
  * @param {Boolean=} prepend
  * @param {Number=} limit
+ *
+ * @ignore
  */
 function subscribeExpression(expression, callback, prepend, limit) {
 	this.expressions.push(new Listener(this, expression, callback, prepend, limit));
@@ -112,6 +143,8 @@ function subscribeExpression(expression, callback, prepend, limit) {
  *
  * @param {RegExp} expression
  * @param {Function} callback
+ *
+ * @ignore
  */
 function unsubscribeExpression(expression, callback) {
 	this.expressions = this.expressions.filter(filterRemoveExpression, { identifier: expression, callback: callback });
@@ -123,6 +156,8 @@ function unsubscribeExpression(expression, callback) {
  * @param {String} name
  *
  * @returns {Object[]}
+ *
+ * @ignore
  */
 function retrieveListener(name) {
 	let listener;
@@ -132,8 +167,8 @@ function retrieveListener(name) {
 
 		listener = storage.events[name] ? storage.events[name].slice() : [];
 
-		if(this !== broadcast) {
-			listener = listener.concat(retrieveListener.call(broadcast, name));
+		if(this !== Emitter) {
+			listener = listener.concat(retrieveListener.call(Emitter, name));
 		}
 
 		storage.expressions.forEach((expression) => {
@@ -153,96 +188,7 @@ class Emitter {
 	 * Emitter constructor
 	 */
 	constructor() {
-		weakmap.set(this, { timestamp: +new Date(), events: {}, expressions: [] });
-	}
-
-	/**
-	 * Subscribe an event listener
-	 *
-	 * @param {String|RegExp|Object[]} identifier
-	 * @param {Function} callback
-	 * @param {Boolean=} prepend
-	 * @param {Number=} limit
-	 *
-	 * @returns {Emitter}
-	 */
-	on(identifier, callback, prepend, limit) {
-		if(validator.isIdentifier(identifier) && validator.isCallback(callback)) {
-			let storage = weakmap.get(this);
-
-			if(validator.isString(identifier)) {
-				subscribeEvent.call(storage, identifier, callback, prepend, limit);
-			}
-
-			if(validator.isExpression(identifier)) {
-				subscribeExpression.call(storage, identifier, callback, prepend, limit);
-			}
-
-			if(validator.isArray(identifier)) {
-				identifier.forEach((identifier) => {
-					this.on(identifier, callback, prepend, limit);
-				});
-			}
-		}
-
-		return this;
-	}
-
-	/**
-	 * Subscribe a once only event listener
-	 *
-	 * @param {String|RegExp|Object[]} identifier
-	 * @param {Function} callback
-	 * @param {Boolean=} prepend
-	 *
-	 * @returns {Emitter}
-	 */
-	once(identifier, callback, prepend) {
-		return this.on(identifier, callback, prepend, 1);
-	}
-
-	/**
-	 * Subscribe a limited event listener
-	 *
-	 * @param {String|RegExp|Object[]} identifier
-	 * @param {Number} limit
-	 * @param {Function} callback
-	 * @param {Boolean=} prepend
-	 *
-	 * @returns {Emitter}
-	 */
-	limit(identifier, limit, callback, prepend) {
-		return this.on(identifier, callback, prepend, limit);
-	}
-
-	/**
-	 * Unsubscribe an event listener
-	 *
-	 * @param {String|RegExp|Object[]} identifier
-	 * @param {Function=} callback
-	 *
-	 * @returns {Emitter}
-	 */
-	off(identifier, callback) {
-		if(validator.isIdentifier(identifier) && (validator.isCallback(callback) || typeof callback === 'undefined')) {
-			let storage = weakmap.get(this);
-
-			if(validator.isString(identifier)) {
-				unsubscribeEvent.call(storage, identifier, callback)
-			}
-
-			if(validator.isExpression(identifier)) {
-				unsubscribeExpression.call(storage, identifier, callback);
-			}
-
-			if(validator.isArray(identifier)) {
-				identifier.forEach((identifier) => {
-					this.off(identifier, callback);
-				});
-			}
-		}
-
-		return this;
+		initialize(this);
 	}
 
 	/**
@@ -274,6 +220,59 @@ class Emitter {
 	}
 
 	/**
+	 * Subscribe an event listener
+	 *
+	 * @param {String|RegExp|Object[]} identifier
+	 * @param {Function} callback
+	 * @param {Boolean=} prepend
+	 * @param {Number=} limit
+	 *
+	 * @returns {Emitter}
+	 */
+	on(identifier, callback, prepend, limit) {
+		return Emitter.on.call(this, identifier, callback, prepend, limit);
+	}
+
+	/**
+	 * Subscribe a once only event listener
+	 *
+	 * @param {String|RegExp|Object[]} identifier
+	 * @param {Function} callback
+	 * @param {Boolean=} prepend
+	 *
+	 * @returns {Emitter}
+	 */
+	once(identifier, callback, prepend) {
+		return Emitter.once.call(this, identifier, callback, prepend);
+	}
+
+	/**
+	 * Subscribe a limited event listener
+	 *
+	 * @param {String|RegExp|Object[]} identifier
+	 * @param {Number} limit
+	 * @param {Function} callback
+	 * @param {Boolean=} prepend
+	 *
+	 * @returns {Emitter}
+	 */
+	limit(identifier, limit, callback, prepend) {
+		return Emitter.limit.call(this, identifier, limit, callback, prepend);
+	}
+
+	/**
+	 * Unsubscribe an event listener
+	 *
+	 * @param {String|RegExp|Object[]} identifier
+	 * @param {Function=} callback
+	 *
+	 * @returns {Emitter}
+	 */
+	off(identifier, callback) {
+		return Emitter.off.call(this, identifier, callback);
+	}
+
+	/**
 	 * Retrieve all listeners for a certain event
 	 *
 	 * @param {String} name
@@ -281,16 +280,118 @@ class Emitter {
 	 * @returns {Object[]}
 	 */
 	listener(name) {
+		return Emitter.listener.call(this, name);
+	}
+
+	/**
+	 * Subscribe an event listener
+	 *
+	 * @param {String|RegExp|Object[]} identifier
+	 * @param {Function} callback
+	 * @param {Boolean=} prepend
+	 * @param {Number=} limit
+	 *
+	 * @returns {Emitter}
+	 *
+	 * @static
+	 */
+	static on(identifier, callback, prepend, limit) {
+		if(validator.isIdentifier(identifier) && validator.isCallback(callback)) {
+			let storage = weakmap.get(this);
+
+			if(validator.isString(identifier)) {
+				subscribeEvent.call(storage, identifier, callback, prepend, limit);
+			}
+
+			if(validator.isExpression(identifier)) {
+				subscribeExpression.call(storage, identifier, callback, prepend, limit);
+			}
+
+			if(validator.isArray(identifier)) {
+				identifier.forEach((identifier) => {
+					this.on(identifier, callback, prepend, limit);
+				});
+			}
+		}
+
+		return this;
+	}
+
+	/**
+	 * Subscribe a once only event listener
+	 *
+	 * @param {String|RegExp|Object[]} identifier
+	 * @param {Function} callback
+	 * @param {Boolean=} prepend
+	 *
+	 * @returns {Emitter}
+	 *
+	 * @static
+	 */
+	static once(identifier, callback, prepend) {
+		return this.on(identifier, callback, prepend, 1);
+	}
+
+	/**
+	 * Subscribe a limited event listener
+	 *
+	 * @param {String|RegExp|Object[]} identifier
+	 * @param {Number} limit
+	 * @param {Function} callback
+	 * @param {Boolean=} prepend
+	 *
+	 * @returns {Emitter}
+	 *
+	 * @static
+	 */
+	static limit(identifier, limit, callback, prepend) {
+		return this.on(identifier, callback, prepend, limit);
+	}
+
+	/**
+	 * Unsubscribe an event listener
+	 *
+	 * @param {String|RegExp|Object[]} identifier
+	 * @param {Function=} callback
+	 *
+	 * @returns {Emitter}
+	 *
+	 * @static
+	 */
+	static off(identifier, callback) {
+		if(validator.isIdentifier(identifier) && (validator.isCallback(callback) || typeof callback === 'undefined')) {
+			let storage = weakmap.get(this);
+
+			if(validator.isString(identifier)) {
+				unsubscribeEvent.call(storage, identifier, callback)
+			}
+
+			if(validator.isExpression(identifier)) {
+				unsubscribeExpression.call(storage, identifier, callback);
+			}
+
+			if(validator.isArray(identifier)) {
+				identifier.forEach((identifier) => {
+					this.off(identifier, callback);
+				});
+			}
+		}
+
+		return this;
+	}
+
+	/**
+	 * Retrieve all listeners for a certain event
+	 *
+	 * @param {String} name
+	 *
+	 * @returns {Object[]}
+	 *
+	 * @static
+	 */
+	static listener(name) {
 		return retrieveListener.call(this, name).map(mapListener);
 	}
 }
 
-const broadcast = new Emitter();
-
-Emitter.on       = broadcast.on.bind(broadcast);
-Emitter.once     = broadcast.once.bind(broadcast);
-Emitter.limit    = broadcast.limit.bind(broadcast);
-Emitter.off      = broadcast.off.bind(broadcast);
-Emitter.listener = broadcast.listener.bind(broadcast);
-
-module.exports = Emitter;
+module.exports = initialize(Emitter);

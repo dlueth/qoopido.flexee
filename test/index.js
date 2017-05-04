@@ -119,6 +119,15 @@ describe('class/emitter.js', () => {
 			sinon.assert.callCount(spy, 4);
 			sinon.assert.alwaysCalledWithExactly(spy, { name: event, context: emitter });
 		});
+
+		it('should not listen to broadcast events', () => {
+			emitter
+				.on(event, spy);
+
+			(new Emitter()).emit(event);
+
+			sinon.assert.notCalled(spy);
+		});
 	});
 
 	describe('once()', () => {
