@@ -206,7 +206,7 @@ class Emitter {
 			let event = new Event(name, this);
 
 			listener.some((listener) => {
-				applyEvent.call(this, listener.callback, event, details)
+				applyEvent.call(this, listener.callback, event, details);
 
 				if(listener.remaining && !(listener.remaining -= 1)) {
 					this.off(listener.identifier, listener.callback);
