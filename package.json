@@ -1,6 +1,6 @@
 {
   "name": "flexee",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Flexible event emitter for Node.js supporting RegExp-based event subscription and global broadcast listeners",
   "main": "index.js",
   "author": {
@@ -34,8 +34,8 @@
   "devDependencies": {
     "chai": "^3.5.0",
     "coveralls": "^2.13.1",
-    "mocha": "^3.3.0",
-    "nyc": "^10.3.0",
+    "mocha": "^3.4.1",
+    "nyc": "^10.3.2",
     "sinon": "^2.2.0"
   }
 }
