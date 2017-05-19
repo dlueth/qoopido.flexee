@@ -89,7 +89,7 @@ function mapListener(listener) {
  * @ignore
  */
 function applyEvent(callback, event, details) {
-	callback.apply(this, Array.prototype.concat(event, details));
+	callback.call(this, event, ...details);
 }
 
 /**
