@@ -1,6 +1,6 @@
 'use strict';
 
-const global = new WeakMap();
+const weakmap = new WeakMap();
 
 class Event {
 	/**
@@ -13,14 +13,14 @@ class Event {
 		Object.defineProperty(this, 'name', { value: name, enumerable: true, configurable: false, writable: false });
 		Object.defineProperty(this, 'context', { value: context, enumerable: true, configurable: false, writable: false });
 
-		global.set(this, { isCanceled: false });
+		weakmap.set(this, { isCanceled: false });
 	}
 
 	/**
 	 * Cancel an events processing immediately
 	 */
 	cancel() {
-		global.get(this).isCanceled = true;
+		weakmap.get(this).isCanceled = true;
 	}
 
 	/**
@@ -29,7 +29,7 @@ class Event {
 	 * @returns {Boolean}
 	 */
 	get isCanceled() {
-		return global.get(this).isCanceled;
+		return weakmap.get(this).isCanceled;
 	}
 }
 
