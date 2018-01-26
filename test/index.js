@@ -27,10 +27,20 @@ describe('class/emitter.js', () => {
 				.on(event, spy)
 				.emit(event);
 
-			sinon.assert.called(spy);
-			sinon.assert.calledOn(spy, emitter);
-			sinon.assert.callCount(spy, 1);
-			sinon.assert.calledWithExactly(spy, { name: event, context: emitter });
+			return new Promise((resolve, reject) => {
+				setTimeout(() => {
+					try {
+						sinon.assert.called(spy);
+						sinon.assert.calledOn(spy, emitter);
+						sinon.assert.callCount(spy, 1);
+						sinon.assert.calledWithExactly(spy, { name: event, context: emitter });
+
+						resolve();
+					} catch(error) {
+						reject(error);
+					}
+				}, 10);
+			});
 		});
 
 		it('should emit an event with additional parameters', () => {
@@ -38,10 +48,20 @@ describe('class/emitter.js', () => {
 				.on(event, spy)
 				.emit(event, 'first', 'second');
 
-			sinon.assert.called(spy);
-			sinon.assert.calledOn(spy, emitter);
-			sinon.assert.callCount(spy, 1);
-			sinon.assert.calledWithExactly(spy, { name: event, context: emitter }, 'first', 'second');
+			return new Promise((resolve, reject) => {
+				setTimeout(() => {
+					try {
+						sinon.assert.called(spy);
+						sinon.assert.calledOn(spy, emitter);
+						sinon.assert.callCount(spy, 1);
+						sinon.assert.calledWithExactly(spy, { name: event, context: emitter }, 'first', 'second');
+
+						resolve();
+					} catch(error) {
+						reject(error);
+					}
+				}, 10);
+			});
 		});
 
 		it('should correctly execute broadcast listeners', () => {
@@ -50,10 +70,20 @@ describe('class/emitter.js', () => {
 			emitter
 				.emit(event);
 
-			sinon.assert.called(spy);
-			sinon.assert.calledOn(spy, emitter);
-			sinon.assert.callCount(spy, 1);
-			sinon.assert.calledWithExactly(spy, { name: event, context: emitter });
+			return new Promise((resolve, reject) => {
+				setTimeout(() => {
+					try {
+						sinon.assert.called(spy);
+						sinon.assert.calledOn(spy, emitter);
+						sinon.assert.callCount(spy, 1);
+						sinon.assert.calledWithExactly(spy, { name: event, context: emitter });
+
+						resolve();
+					} catch(error) {
+						reject(error);
+					}
+				}, 10);
+			});
 		});
 
 		it('should correctly cancel an event', () => {
@@ -67,10 +97,20 @@ describe('class/emitter.js', () => {
 				.on(event, spy)
 				.emit(event);
 
-			sinon.assert.called(spy);
-			sinon.assert.calledOn(spy, emitter);
-			sinon.assert.callCount(spy, 1);
-			sinon.assert.calledWithExactly(spy, { name: event, context: emitter });
+			return new Promise((resolve, reject) => {
+				setTimeout(() => {
+					try {
+						sinon.assert.called(spy);
+						sinon.assert.calledOn(spy, emitter);
+						sinon.assert.callCount(spy, 1);
+						sinon.assert.calledWithExactly(spy, { name: event, context: emitter });
+
+						resolve();
+					} catch(error) {
+						reject(error);
+					}
+				}, 10);
+			});
 		});
 	});
 
@@ -81,10 +121,20 @@ describe('class/emitter.js', () => {
 				.emit(event)
 				.emit(event);
 
-			sinon.assert.called(spy);
-			sinon.assert.calledOn(spy, emitter);
-			sinon.assert.callCount(spy, 2);
-			sinon.assert.alwaysCalledWithExactly(spy, { name: event, context: emitter });
+			return new Promise((resolve, reject) => {
+				setTimeout(() => {
+					try {
+						sinon.assert.called(spy);
+						sinon.assert.calledOn(spy, emitter);
+						sinon.assert.callCount(spy, 2);
+						sinon.assert.alwaysCalledWithExactly(spy, { name: event, context: emitter });
+
+						resolve();
+					} catch(error) {
+						reject(error);
+					}
+				}, 10);
+			});
 		});
 
 		it('should call an expression listener repeatedly', () => {
@@ -102,10 +152,20 @@ describe('class/emitter.js', () => {
 				.emit(event)
 				.emit('none');
 
-			sinon.assert.called(spy);
-			sinon.assert.calledOn(spy, emitter);
-			sinon.assert.callCount(spy, 2);
-			sinon.assert.alwaysCalledWithMatch(spy, testEvent);
+			return new Promise((resolve, reject) => {
+				setTimeout(() => {
+					try {
+						sinon.assert.called(spy);
+						sinon.assert.calledOn(spy, emitter);
+						sinon.assert.callCount(spy, 2);
+						sinon.assert.alwaysCalledWithMatch(spy, testEvent);
+
+						resolve();
+					} catch(error) {
+						reject(error);
+					}
+				}, 10);
+			});
 		});
 
 		it('should call an array of listeners repeatedly', () => {
@@ -114,10 +174,20 @@ describe('class/emitter.js', () => {
 				.emit(event)
 				.emit(event);
 
-			sinon.assert.called(spy);
-			sinon.assert.calledOn(spy, emitter);
-			sinon.assert.callCount(spy, 4);
-			sinon.assert.alwaysCalledWithExactly(spy, { name: event, context: emitter });
+			return new Promise((resolve, reject) => {
+				setTimeout(() => {
+					try {
+						sinon.assert.called(spy);
+						sinon.assert.calledOn(spy, emitter);
+						sinon.assert.callCount(spy, 4);
+						sinon.assert.alwaysCalledWithExactly(spy, { name: event, context: emitter });
+
+						resolve();
+					} catch(error) {
+						reject(error);
+					}
+				}, 10);
+			});
 		});
 
 		it('should not listen to broadcast events', () => {
@@ -126,21 +196,41 @@ describe('class/emitter.js', () => {
 
 			(new Emitter()).emit(event);
 
-			sinon.assert.notCalled(spy);
+			return new Promise((resolve, reject) => {
+				setTimeout(() => {
+					try {
+						sinon.assert.notCalled(spy);
+
+						resolve();
+					} catch(error) {
+						reject(error);
+					}
+				}, 10);
+			});
 		});
 	});
 
 	describe('once()', () => {
-		it('should call an event listener only once', () => {
+		it('should call an event listener only once', async () => {
 			emitter
 				.once(event, spy)
 				.emit(event)
 				.emit(event);
 
-			sinon.assert.called(spy);
-			sinon.assert.calledOn(spy, emitter);
-			sinon.assert.callCount(spy, 1);
-			sinon.assert.calledWithExactly(spy, { name: event, context: emitter });
+			return new Promise((resolve, reject) => {
+				setTimeout(() => {
+					try {
+						sinon.assert.called(spy);
+						sinon.assert.calledOn(spy, emitter);
+						sinon.assert.callCount(spy, 1);
+						sinon.assert.calledWithExactly(spy, { name: event, context: emitter });
+
+						resolve();
+					} catch(error) {
+						reject(error);
+					}
+				}, 10);
+			});
 		});
 
 		it('should call an expression listener only once', () => {
@@ -153,10 +243,20 @@ describe('class/emitter.js', () => {
 				.emit(event + '/failure')
 				.emit('none');
 
-			sinon.assert.called(spy);
-			sinon.assert.calledOn(spy, emitter);
-			sinon.assert.callCount(spy, 1);
-			sinon.assert.calledWithExactly(spy, { name: event + '/success', context: emitter });
+			return new Promise((resolve, reject) => {
+				setTimeout(() => {
+					try {
+						sinon.assert.called(spy);
+						sinon.assert.calledOn(spy, emitter);
+						sinon.assert.callCount(spy, 1);
+						sinon.assert.calledWithExactly(spy, { name: event + '/success', context: emitter });
+
+						resolve();
+					} catch(error) {
+						reject(error);
+					}
+				}, 10);
+			});
 		});
 
 		it('should call an array of listeners only once', () => {
@@ -165,10 +265,20 @@ describe('class/emitter.js', () => {
 				.emit(event)
 				.emit(event);
 
-			sinon.assert.called(spy);
-			sinon.assert.calledOn(spy, emitter);
-			sinon.assert.callCount(spy, 2);
-			sinon.assert.alwaysCalledWithExactly(spy, { name: event, context: emitter });
+			return new Promise((resolve, reject) => {
+				setTimeout(() => {
+					try {
+						sinon.assert.called(spy);
+						sinon.assert.calledOn(spy, emitter);
+						sinon.assert.callCount(spy, 2);
+						sinon.assert.alwaysCalledWithExactly(spy, { name: event, context: emitter });
+
+						resolve();
+					} catch(error) {
+						reject(error);
+					}
+				}, 10);
+			});
 		});
 	});
 
@@ -183,10 +293,20 @@ describe('class/emitter.js', () => {
 				.emit(event)
 				.emit('none');
 
-			sinon.assert.called(spy);
-			sinon.assert.calledOn(spy, emitter);
-			sinon.assert.callCount(spy, 3);
-			sinon.assert.alwaysCalledWithExactly(spy, { name: event, context: emitter });
+			return new Promise((resolve, reject) => {
+				setTimeout(() => {
+					try {
+						sinon.assert.called(spy);
+						sinon.assert.calledOn(spy, emitter);
+						sinon.assert.callCount(spy, 3);
+						sinon.assert.alwaysCalledWithExactly(spy, { name: event, context: emitter });
+
+						resolve();
+					} catch(error) {
+						reject(error);
+					}
+				}, 10);
+			});
 		});
 
 		it('should call an expression listener a limited number of times', () => {
@@ -205,10 +325,20 @@ describe('class/emitter.js', () => {
 				.emit(event + '/failure')
 				.emit('none');
 
-			sinon.assert.called(spy);
-			sinon.assert.calledOn(spy, emitter);
-			sinon.assert.callCount(spy, 3);
-			sinon.assert.alwaysCalledWithMatch(spy, testEvent);
+			return new Promise((resolve, reject) => {
+				setTimeout(() => {
+					try {
+						sinon.assert.called(spy);
+						sinon.assert.calledOn(spy, emitter);
+						sinon.assert.callCount(spy, 3);
+						sinon.assert.alwaysCalledWithMatch(spy, testEvent);
+
+						resolve();
+					} catch(error) {
+						reject(error);
+					}
+				}, 10);
+			});
 		});
 
 		it('should call an array of event listeners a limited number of times', () => {
@@ -221,10 +351,20 @@ describe('class/emitter.js', () => {
 				.emit(event)
 				.emit('none');
 
-			sinon.assert.called(spy);
-			sinon.assert.calledOn(spy, emitter);
-			sinon.assert.callCount(spy, 6);
-			sinon.assert.alwaysCalledWithExactly(spy, { name: event, context: emitter });
+			return new Promise((resolve, reject) => {
+				setTimeout(() => {
+					try {
+						sinon.assert.called(spy);
+						sinon.assert.calledOn(spy, emitter);
+						sinon.assert.callCount(spy, 6);
+						sinon.assert.alwaysCalledWithExactly(spy, { name: event, context: emitter });
+
+						resolve();
+					} catch(error) {
+						reject(error);
+					}
+				}, 10);
+			});
 		});
 	});
 
@@ -236,12 +376,22 @@ describe('class/emitter.js', () => {
 				.off(event, spy)
 				.emit(event);
 
-			sinon.assert.called(spy);
-			sinon.assert.calledOn(spy, emitter);
-			sinon.assert.callCount(spy, 1);
-			sinon.assert.calledWithExactly(spy, { name: event, context: emitter });
+			return new Promise((resolve, reject) => {
+				setTimeout(() => {
+					try {
+						sinon.assert.called(spy);
+						sinon.assert.calledOn(spy, emitter);
+						sinon.assert.callCount(spy, 1);
+						sinon.assert.calledWithExactly(spy, { name: event, context: emitter });
 
-			expect(emitter.listener(event)).to.be.an('array').and.to.have.length.of(0);
+						expect(emitter.listener(event)).to.be.an('array').and.to.have.length.of(0);
+
+						resolve();
+					} catch(error) {
+						reject(error);
+					}
+				}, 10);
+			});
 		});
 
 		it('should unregister all event listeners when callback-function is omitted', () => {
@@ -252,12 +402,22 @@ describe('class/emitter.js', () => {
 				.off(event)
 				.emit(event);
 
-			sinon.assert.called(spy);
-			sinon.assert.calledOn(spy, emitter);
-			sinon.assert.callCount(spy, 2);
-			sinon.assert.alwaysCalledWithExactly(spy, { name: event, context: emitter });
+			return new Promise((resolve, reject) => {
+				setTimeout(() => {
+					try {
+						sinon.assert.called(spy);
+						sinon.assert.calledOn(spy, emitter);
+						sinon.assert.callCount(spy, 2);
+						sinon.assert.alwaysCalledWithExactly(spy, { name: event, context: emitter });
 
-			expect(emitter.listener(event)).to.be.an('array').and.to.have.length.of(0);
+						expect(emitter.listener(event)).to.be.an('array').and.to.have.length.of(0);
+
+						resolve();
+					} catch(error) {
+						reject(error);
+					}
+				}, 10);
+			});
 		});
 
 		it('should unregister an expression listener', () => {
@@ -275,12 +435,22 @@ describe('class/emitter.js', () => {
 				.off(regex, spy)
 				.emit(event + '/success');
 
-			sinon.assert.called(spy);
-			sinon.assert.calledOn(spy, emitter);
-			sinon.assert.callCount(spy, 2);
-			sinon.assert.alwaysCalledWithMatch(spy, testEvent);
+			return new Promise((resolve, reject) => {
+				setTimeout(() => {
+					try {
+						sinon.assert.called(spy);
+						sinon.assert.calledOn(spy, emitter);
+						sinon.assert.callCount(spy, 2);
+						sinon.assert.alwaysCalledWithMatch(spy, testEvent);
 
-			expect(emitter.listener(event)).to.be.an('array').and.to.have.length.of(0);
+						expect(emitter.listener(event)).to.be.an('array').and.to.have.length.of(0);
+
+						resolve();
+					} catch(error) {
+						reject(error);
+					}
+				}, 10);
+			});
 		});
 
 		it('should unregister all expression listeners when callback-function is omitted', () => {
@@ -297,12 +467,22 @@ describe('class/emitter.js', () => {
 				.off(regex)
 				.emit(event + '/success');
 
-			sinon.assert.called(spy);
-			sinon.assert.calledOn(spy, emitter);
-			sinon.assert.callCount(spy, 2);
-			sinon.assert.alwaysCalledWithMatch(spy, testEvent);
+			return new Promise((resolve, reject) => {
+				setTimeout(() => {
+					try {
+						sinon.assert.called(spy);
+						sinon.assert.calledOn(spy, emitter);
+						sinon.assert.callCount(spy, 2);
+						sinon.assert.alwaysCalledWithMatch(spy, testEvent);
 
-			expect(emitter.listener(event)).to.be.an('array').and.to.have.length.of(0);
+						expect(emitter.listener(event)).to.be.an('array').and.to.have.length.of(0);
+
+						resolve();
+					} catch(error) {
+						reject(error);
+					}
+				}, 10);
+			});
 		});
 
 		it('should unregister an array of event listeners', () => {
@@ -312,12 +492,22 @@ describe('class/emitter.js', () => {
 				.off([ event, event ], spy)
 				.emit(event);
 
-			sinon.assert.called(spy);
-			sinon.assert.calledOn(spy, emitter);
-			sinon.assert.callCount(spy, 2);
-			sinon.assert.alwaysCalledWithExactly(spy, { name: event, context: emitter });
+			return new Promise((resolve, reject) => {
+				setTimeout(() => {
+					try {
+						sinon.assert.called(spy);
+						sinon.assert.calledOn(spy, emitter);
+						sinon.assert.callCount(spy, 2);
+						sinon.assert.alwaysCalledWithExactly(spy, { name: event, context: emitter });
 
-			expect(emitter.listener(event)).to.be.an('array').and.to.have.length.of(0);
+						expect(emitter.listener(event)).to.be.an('array').and.to.have.length.of(0);
+
+						resolve();
+					} catch(error) {
+						reject(error);
+					}
+				}, 10);
+			});
 		});
 
 		it('should not unregister expression listeners when removing an event listener', () => {
@@ -334,12 +524,22 @@ describe('class/emitter.js', () => {
 				.off(event + '/success')
 				.emit(event + '/success');
 
-			sinon.assert.called(spy);
-			sinon.assert.calledOn(spy, emitter);
-			sinon.assert.callCount(spy, 3);
-			sinon.assert.alwaysCalledWithMatch(spy, testEvent);
+			return new Promise((resolve, reject) => {
+				setTimeout(() => {
+					try {
+						sinon.assert.called(spy);
+						sinon.assert.calledOn(spy, emitter);
+						sinon.assert.callCount(spy, 3);
+						sinon.assert.alwaysCalledWithMatch(spy, testEvent);
 
-			expect(emitter.listener(event + '/success')).to.be.an('array').and.to.have.length.of(1);
+						expect(emitter.listener(event + '/success')).to.be.an('array').and.to.have.length.of(1);
+
+						resolve();
+					} catch(error) {
+						reject(error);
+					}
+				}, 10);
+			});
 		});
 
 		it('should not unregister an event listener when removing an expression listener', () => {
@@ -356,12 +556,22 @@ describe('class/emitter.js', () => {
 				.off(regex)
 				.emit(event + '/success');
 
-			sinon.assert.called(spy);
-			sinon.assert.calledOn(spy, emitter);
-			sinon.assert.callCount(spy, 3);
-			sinon.assert.alwaysCalledWithMatch(spy, testEvent);
+			return new Promise((resolve, reject) => {
+				setTimeout(() => {
+					try {
+						sinon.assert.called(spy);
+						sinon.assert.calledOn(spy, emitter);
+						sinon.assert.callCount(spy, 3);
+						sinon.assert.alwaysCalledWithMatch(spy, testEvent);
 
-			expect(emitter.listener(event + '/success')).to.be.an('array').and.to.have.length.of(1);
+						expect(emitter.listener(event + '/success')).to.be.an('array').and.to.have.length.of(1);
+
+						resolve();
+					} catch(error) {
+						reject(error);
+					}
+				}, 10);
+			});
 		});
 	});
 
@@ -384,9 +594,19 @@ describe('class/emitter.js', () => {
 				.on(event, listener)
 				.off(event, listener);
 
-			result = emitter.listener(event);
+			return new Promise((resolve, reject) => {
+				setTimeout(() => {
+					try {
+						result = emitter.listener(event);
 
-			expect(result).to.be.an('array').and.to.have.length.of(3);
+						expect(result).to.be.an('array').and.to.have.length.of(3);
+
+						resolve();
+					} catch(error) {
+						reject(error);
+					}
+				}, 10);
+			});
 		});
 
 		it('should return an array of correctly ordered listeners', () => {
@@ -399,9 +619,19 @@ describe('class/emitter.js', () => {
 				.on(event, listeners[1], true)
 				.on(regex, listeners[2], true);
 
-			result = emitter.listener(event);
+			return new Promise((resolve, reject) => {
+				setTimeout(() => {
+					try {
+						result = emitter.listener(event);
 
-			expect(result).to.be.an('array').and.to.have.length.of(3).and.to.deep.equal(listeners.reverse());
+						expect(result).to.be.an('array').and.to.have.length.of(3).and.to.deep.equal(listeners.reverse());
+
+						resolve();
+					} catch(error) {
+						reject(error);
+					}
+				}, 10);
+			});
 		});
 	});
 });

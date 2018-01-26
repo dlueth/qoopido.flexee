@@ -80,16 +80,28 @@ function mapListener(listener) {
 }
 
 /**
- * Apply an event + optional details to a listener
+ * Apply an event + optional details to all listener
  *
- * @param {Function} callback
+ * @param {Listener[]} listener
  * @param {Event} event
  * @param {Object[]=} details
  *
  * @ignore
  */
-function applyEvent(callback, event, details) {
-	callback.call(this, event, ...details);
+async function applyEvent(listener, event, details) {
+	let i = 0, item;
+
+	for(; (item = listener[i]); i++) {
+		if(item.remaining && !(item.remaining -= 1)) {
+			this.off(item.identifier, item.callback);
+		}
+
+		await Promise.resolve(item.callback.call(this, event, ...details));
+
+		if(event.isCanceled) {
+			break;
+		}
+	}
 }
 
 /**
@@ -203,17 +215,7 @@ class Emitter {
 		let listener = retrieveListener.call(this, name);
 
 		if(listener.length) {
-			let event = new Event(name, this);
-
-			listener.some((listener) => {
-				applyEvent.call(this, listener.callback, event, details);
-
-				if(listener.remaining && !(listener.remaining -= 1)) {
-					this.off(listener.identifier, listener.callback);
-				}
-
-				return event.isCanceled;
-			});
+			applyEvent.call(this, listener, new Event(name, this), details);
 		}
 
 		return this;
@@ -395,3 +397,14 @@ class Emitter {
 }
 
 module.exports = initialize(Emitter);
+
+/*
+(new Emitter())
+	.on([ 'test1', 'test1' ], function(event) {
+		console.log(event.name);
+
+		return new Promise((resolve) => { resolve(); });
+	})
+	.emit('test1')
+	.emit('test1');
+*/
