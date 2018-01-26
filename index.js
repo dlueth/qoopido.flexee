@@ -92,11 +92,11 @@ async function applyEvent(listener, event, details) {
 	let i = 0, item;
 
 	for(; (item = listener[i]); i++) {
-		await item.callback.call(this, event, ...details);
-
 		if(item.remaining && !(item.remaining -= 1)) {
 			this.off(item.identifier, item.callback);
 		}
+
+		await Promise.resolve(item.callback.call(this, event, ...details));
 
 		if(event.isCanceled) {
 			break;
@@ -397,3 +397,14 @@ class Emitter {
 }
 
 module.exports = initialize(Emitter);
+
+/*
+(new Emitter())
+	.on([ 'test1', 'test1' ], function(event) {
+		console.log(event.name);
+
+		return new Promise((resolve) => { resolve(); });
+	})
+	.emit('test1')
+	.emit('test1');
+*/
